@@ -1,13 +1,15 @@
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
+import { facilityIcon } from '@/lib/facilities';
 import { imageForVenue } from '@/lib/utils';
-import { Link, useForm } from '@inertiajs/react';
-import { ImagePlus, Info, LoaderCircle, UploadCloud, X } from 'lucide-react';
+import { Link, useForm, usePage } from '@inertiajs/react';
+import { Check, ImagePlus, Info, LoaderCircle, UploadCloud, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 const MAX_IMAGES = 5;
 
 export default function VenueForm({ venue = null }) {
+    const { venueFacilities = {} } = usePage().props;
     const isEdit = Boolean(venue);
     const [existingImages, setExistingImages] = useState(venue?.images ?? []);
     const [newPreviews, setNewPreviews] = useState([]);
@@ -22,6 +24,7 @@ export default function VenueForm({ venue = null }) {
         phone: venue?.phone ?? '',
         images: [],
         removed_images: [],
+        facilities: venue?.facilities ?? [],
     });
 
     useEffect(() => {
@@ -114,6 +117,17 @@ export default function VenueForm({ venue = null }) {
         setFileNotice(null);
     };
 
+    const toggleFacility = (value) => {
+        const selected = form.data.facilities.includes(value);
+
+        form.setData(
+            'facilities',
+            selected
+                ? form.data.facilities.filter((facility) => facility !== value)
+                : [...form.data.facilities, value],
+        );
+    };
+
     const submit = (event) => {
         event.preventDefault();
 
@@ -196,6 +210,48 @@ export default function VenueForm({ venue = null }) {
                             <InputError message={form.errors.description} className="mt-1.5" />
                         </div>
                     </div>
+                </section>
+
+                <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-6">
+                    <h3 className="text-base font-bold text-slate-900">Fasilitas venue</h3>
+                    <p className="mt-1 text-xs text-slate-500">
+                        Pilih fasilitas yang benar-benar tersedia agar customer tidak kecewa saat
+                        datang.
+                    </p>
+
+                    <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+                        {Object.entries(venueFacilities).map(([value, label]) => {
+                            const Icon = facilityIcon(value);
+                            const selected = form.data.facilities.includes(value);
+
+                            return (
+                                <label
+                                    key={value}
+                                    className={`flex cursor-pointer items-center gap-2.5 rounded-xl border px-3.5 py-3 text-sm font-medium transition ${
+                                        selected
+                                            ? 'border-brand-600 bg-brand-50 text-brand-800 ring-1 ring-brand-600'
+                                            : 'border-slate-200 bg-white text-slate-600 hover:border-brand-300 hover:bg-slate-50'
+                                    }`}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={selected}
+                                        onChange={() => toggleFacility(value)}
+                                        className="sr-only"
+                                    />
+                                    <Icon
+                                        className={`h-4 w-4 shrink-0 ${
+                                            selected ? 'text-brand-600' : 'text-slate-400'
+                                        }`}
+                                    />
+                                    <span className="flex-1">{label}</span>
+                                    {selected && <Check className="h-4 w-4 text-brand-600" />}
+                                </label>
+                            );
+                        })}
+                    </div>
+
+                    <InputError message={form.errors.facilities} className="mt-1.5" />
                 </section>
 
                 <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-6">

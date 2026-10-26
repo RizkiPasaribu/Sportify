@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
-#[Fillable(['owner_id', 'name', 'city', 'address', 'description', 'phone', 'images'])]
+#[Fillable(['owner_id', 'name', 'city', 'address', 'description', 'phone', 'images', 'facilities'])]
 class Venue extends Model
 {
     /** @use HasFactory<VenueFactory> */
@@ -24,6 +24,7 @@ class Venue extends Model
     {
         return [
             'images' => 'array',
+            'facilities' => 'array',
         ];
     }
 

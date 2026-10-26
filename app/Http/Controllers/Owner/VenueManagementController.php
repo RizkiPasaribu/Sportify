@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Owner;
 
+use App\Enums\VenueFacility;
 use App\Http\Controllers\Controller;
 use App\Models\Venue;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -45,11 +47,12 @@ class VenueManagementController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate($this->rules());
-        $venueData = collect($validated)->except(['images', 'removed_images'])->all();
+        $venueData = collect($validated)->except(['images', 'removed_images', 'facilities'])->all();
 
         $venue = $request->user()->venues()->create([
             ...$venueData,
             'images' => $this->storeImages($request),
+            'facilities' => $validated['facilities'] ?? [],
         ]);
 
         return redirect()
@@ -81,7 +84,7 @@ class VenueManagementController extends Controller
         $this->authorize('update', $venue);
 
         $validated = $request->validate($this->rules());
-        $venueData = collect($validated)->except(['images', 'removed_images'])->all();
+        $venueData = collect($validated)->except(['images', 'removed_images', 'facilities'])->all();
 
         $removedImages = collect($request->input('removed_images', []))
             ->filter(fn (mixed $image): bool => is_string($image))
@@ -102,6 +105,7 @@ class VenueManagementController extends Controller
         $venue->update([
             ...$venueData,
             'images' => $images,
+            'facilities' => $validated['facilities'] ?? [],
         ]);
 
         return redirect()
@@ -142,6 +146,8 @@ class VenueManagementController extends Controller
             'images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'removed_images' => ['nullable', 'array'],
             'removed_images.*' => ['string'],
+            'facilities' => ['nullable', 'array', 'max:20'],
+            'facilities.*' => ['string', Rule::in(VenueFacility::values())],
         ];
     }
 

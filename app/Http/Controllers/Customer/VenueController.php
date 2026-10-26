@@ -9,6 +9,7 @@ use App\Models\Venue;
 use App\Services\BookingService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -36,7 +37,7 @@ class VenueController extends Controller
             $selectedDate = CarbonImmutable::today();
         }
 
-        $venues = Venue::query()
+        $venuesQuery = Venue::query()
             ->with([
                 'fields' => fn ($query) => $query
                     ->where('is_active', true)
@@ -65,22 +66,31 @@ class VenueController extends Controller
                     ->where('day_of_week', $selectedDate->dayOfWeek)
                     ->where('is_closed', false));
             })
-            ->orderBy('name')
-            ->paginate(9)
-            ->withQueryString()
-            ->through(function (Venue $venue) use ($selectedDate): Venue {
-                $venue->setAttribute('min_price', $venue->fields->min('price_per_hour'));
-                $venue->setAttribute('sport_types', $venue->fields->pluck('sport_type')->unique()->values());
+            ->orderBy('name');
 
-                if ($selectedDate !== null) {
-                    $venue->setAttribute('available_fields_count', $venue->fields->filter(
-                        fn (Field $field): bool => collect($this->bookingService->availabilityFor($field, $selectedDate)['slots'])
-                            ->contains('available', true),
-                    )->count());
-                }
+        if ($selectedDate === null) {
+            $venues = $venuesQuery
+                ->paginate(9)
+                ->withQueryString()
+                ->through(fn (Venue $venue): Venue => $this->decorateVenue($venue));
+        } else {
+            $matchingVenues = $venuesQuery
+                ->get()
+                ->map(fn (Venue $venue): Venue => $this->decorateVenue($venue, $selectedDate))
+                ->filter(fn (Venue $venue): bool => (int) $venue->available_fields_count > 0)
+                ->values();
 
-                return $venue;
-            });
+            $perPage = 9;
+            $page = max(1, $request->integer('page', 1));
+
+            $venues = (new LengthAwarePaginator(
+                $matchingVenues->forPage($page, $perPage)->values(),
+                $matchingVenues->count(),
+                $perPage,
+                $page,
+                ['path' => LengthAwarePaginator::resolveCurrentPath()],
+            ))->appends($request->query());
+        }
 
         return Inertia::render('Customer/Venues/Index', [
             'venues' => $venues,
@@ -161,6 +171,21 @@ class VenueController extends Controller
                     'label' => today()->addDays($offset)->translatedFormat('D, d M'),
                 ]),
         ]);
+    }
+
+    private function decorateVenue(Venue $venue, ?CarbonImmutable $selectedDate = null): Venue
+    {
+        $venue->setAttribute('min_price', $venue->fields->min('price_per_hour'));
+        $venue->setAttribute('sport_types', $venue->fields->pluck('sport_type')->unique()->values());
+
+        if ($selectedDate !== null) {
+            $venue->setAttribute('available_fields_count', $venue->fields->filter(
+                fn (Field $field): bool => collect($this->bookingService->availabilityFor($field, $selectedDate)['slots'])
+                    ->contains('available', true),
+            )->count());
+        }
+
+        return $venue;
     }
 
     private function resolveDate(?string $value): CarbonImmutable

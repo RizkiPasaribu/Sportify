@@ -27,6 +27,7 @@ class OwnerManagementTest extends TestCase
             'address' => 'Jl. Merdeka No. 10',
             'description' => 'Venue futsal modern.',
             'phone' => '081234567890',
+            'facilities' => ['parking', 'wifi', 'shower'],
         ]);
 
         $venue = Venue::query()->firstOrFail();
@@ -34,6 +35,41 @@ class OwnerManagementTest extends TestCase
         $response->assertRedirect(route('owner.venues.fields.index', $venue, absolute: false));
         $this->assertSame($owner->id, $venue->owner_id);
         $this->assertSame('Arena Sportify', $venue->name);
+        $this->assertSame(['parking', 'wifi', 'shower'], $venue->facilities);
+    }
+
+    public function test_owner_cannot_use_unknown_venue_facility(): void
+    {
+        $owner = User::factory()->owner()->create();
+
+        $this->actingAs($owner)
+            ->post(route('owner.venues.store'), [
+                'name' => 'Arena Sportify',
+                'city' => 'Bandung',
+                'address' => 'Jl. Merdeka No. 10',
+                'facilities' => ['spa'],
+            ])
+            ->assertSessionHasErrors('facilities.0');
+    }
+
+    public function test_owner_can_update_venue_facilities(): void
+    {
+        $owner = User::factory()->owner()->create();
+        $venue = Venue::factory()->create([
+            'owner_id' => $owner->id,
+            'facilities' => ['parking'],
+        ]);
+
+        $this->actingAs($owner)
+            ->put(route('owner.venues.update', $venue), [
+                'name' => $venue->name,
+                'city' => $venue->city,
+                'address' => $venue->address,
+                'facilities' => ['wifi', 'locker'],
+            ])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame(['wifi', 'locker'], $venue->refresh()->facilities);
     }
 
     public function test_owner_cannot_update_another_owners_venue(): void

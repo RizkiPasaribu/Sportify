@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\VenueFacility;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -50,6 +51,7 @@ class HandleInertiaRequests extends Middleware
             'app' => [
                 'name' => config('app.name'),
             ],
+            'venueFacilities' => VenueFacility::options(),
         ];
     }
 }

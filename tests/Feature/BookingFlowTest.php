@@ -308,6 +308,28 @@ class BookingFlowTest extends TestCase
                 ->where('pendingReviews.0.id', $booking->id));
     }
 
+    public function test_fully_booked_venues_are_excluded_from_search_for_a_selected_date(): void
+    {
+        $date = today()->addDay()->toDateString();
+
+        $bookedField = $this->createField();
+        Booking::factory()->confirmed()->create([
+            'field_id' => $bookedField->id,
+            'booking_date' => $date,
+            'start_time' => '08:00',
+            'end_time' => '22:00',
+        ]);
+
+        $availableField = $this->createField();
+
+        $this->get(route('venues.index', ['date' => $date]))
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->has('venues.data', 1)
+                ->where('venues.data.0.id', $availableField->venue_id)
+                ->where('venues.data.0.available_fields_count', 1));
+    }
+
     private function createField(): Field
     {
         $owner = User::factory()->owner()->create();

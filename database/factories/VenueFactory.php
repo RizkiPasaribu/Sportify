@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\VenueFacility;
 use App\Models\User;
 use App\Models\Venue;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -28,6 +29,10 @@ class VenueFactory extends Factory
             'description' => fake()->paragraph(),
             'phone' => fake()->numerify('08##########'),
             'images' => ['/images/venues/futsal.svg'],
+            'facilities' => fake()->randomElements(
+                VenueFacility::values(),
+                fake()->numberBetween(2, 5),
+            ),
         ];
     }
 }

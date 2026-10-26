@@ -3,6 +3,8 @@ import RatingStars from '@/Components/RatingStars';
 import SlotPicker from '@/Components/SlotPicker';
 import VenueCard from '@/Components/VenueCard';
 import AppLayout from '@/Layouts/AppLayout';
+import DashboardLayout from '@/Layouts/DashboardLayout';
+import { getFacility } from '@/lib/facilities';
 import {
     DAY_NAMES,
     durationLabel,
@@ -16,33 +18,20 @@ import {
 } from '@/lib/utils';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import {
+    ArrowLeft,
     BadgeCheck,
     CalendarDays,
-    Car,
     ChevronRight,
     Clock3,
-    Droplets,
     LoaderCircle,
-    Lock,
     MapPin,
     MessageSquare,
     Phone,
     ShieldCheck,
     Sparkles,
     Star,
-    Utensils,
-    Wifi,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-
-const facilities = [
-    { label: 'Parkir luas', icon: Car },
-    { label: 'Toilet & shower', icon: Droplets },
-    { label: 'Ruang tunggu', icon: Lock },
-    { label: 'Kantin', icon: Utensils },
-    { label: 'WiFi', icon: Wifi },
-    { label: 'Keamanan 24 jam', icon: ShieldCheck },
-];
 
 export default function Show({
     venue,
@@ -54,8 +43,10 @@ export default function Show({
     selectedDate,
     dateOptions = [],
 }) {
-    const { auth } = usePage().props;
+    const { auth, venueFacilities = {} } = usePage().props;
     const user = auth?.user;
+    const isCustomer = user?.role === 'customer';
+    const Layout = isCustomer ? DashboardLayout : AppLayout;
     const [selectedFieldId, setSelectedFieldId] = useState(fields[0]?.id ?? null);
     const [selectedStart, setSelectedStart] = useState(null);
     const [selectedEnd, setSelectedEnd] = useState(null);
@@ -96,6 +87,7 @@ export default function Show({
     }, [selectedStart, selectedEnd]);
 
     const total = hours * Number(selectedField?.price_per_hour ?? 0);
+    const facilities = (venue.facilities ?? []).map((value) => getFacility(value, venueFacilities));
     const gallery = useMemo(() => {
         const images = venue.images?.length ? venue.images : [imageForVenue(venue)];
         const fallback = '/images/venues/futsal-2.svg';
@@ -134,23 +126,32 @@ export default function Show({
     const reviewCount = venue.reviews_count ?? reviews.length;
 
     return (
-        <AppLayout>
-            <Head title={venue.name} />
+        <Layout title={venue.name}>
+            {!isCustomer && <Head title={venue.name} />}
 
-            <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                <nav className="flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
-                    <Link href={route('home')} className="hover:text-brand-600">
-                        Beranda
+            <div className={isCustomer ? '' : 'mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8'}>
+                {isCustomer ? (
+                    <Link
+                        href={route('venues.index')}
+                        className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-brand-700"
+                    >
+                        <ArrowLeft className="h-4 w-4" /> Kembali ke cari lapangan
                     </Link>
-                    <ChevronRight className="h-3.5 w-3.5" />
-                    <Link href={route('venues.index')} className="hover:text-brand-600">
-                        Lapangan
-                    </Link>
-                    <ChevronRight className="h-3.5 w-3.5" />
-                    <span className="font-medium text-slate-600">{venue.name}</span>
-                </nav>
+                ) : (
+                    <nav className="flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
+                        <Link href={route('home')} className="hover:text-brand-600">
+                            Beranda
+                        </Link>
+                        <ChevronRight className="h-3.5 w-3.5" />
+                        <Link href={route('venues.index')} className="hover:text-brand-600">
+                            Lapangan
+                        </Link>
+                        <ChevronRight className="h-3.5 w-3.5" />
+                        <span className="font-medium text-slate-600">{venue.name}</span>
+                    </nav>
+                )}
 
-                <div className="mt-4 grid gap-3 lg:grid-cols-[2fr_1fr]">
+                <div className={`grid gap-3 lg:grid-cols-[2fr_1fr] ${isCustomer ? '' : 'mt-4'}`}>
                     <div className="relative overflow-hidden rounded-2xl bg-slate-100">
                         <img
                             src={gallery[0]}
@@ -231,21 +232,27 @@ export default function Show({
                             </p>
 
                             <h3 className="mt-6 text-sm font-bold text-slate-900">Fasilitas</h3>
-                            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                                {facilities.map((facility) => {
-                                    const Icon = facility.icon;
+                            {facilities.length > 0 ? (
+                                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                    {facilities.map((facility) => {
+                                        const Icon = facility.icon;
 
-                                    return (
-                                        <div
-                                            key={facility.label}
-                                            className="flex items-center gap-2.5 rounded-xl bg-slate-50 px-3 py-2.5 text-xs font-medium text-slate-600"
-                                        >
-                                            <Icon className="h-4 w-4 shrink-0 text-brand-600" />
-                                            {facility.label}
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                                        return (
+                                            <div
+                                                key={facility.value}
+                                                className="flex items-center gap-2.5 rounded-xl bg-slate-50 px-3 py-2.5 text-xs font-medium text-slate-600"
+                                            >
+                                                <Icon className="h-4 w-4 shrink-0 text-brand-600" />
+                                                {facility.label}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <p className="mt-3 rounded-xl bg-slate-50 px-3 py-2.5 text-xs text-slate-500">
+                                    Mitra belum menambahkan detail fasilitas untuk venue ini.
+                                </p>
+                            )}
                         </div>
 
                         <div className="mt-5 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm">
@@ -662,6 +669,6 @@ export default function Show({
                     </section>
                 )}
             </div>
-        </AppLayout>
+        </Layout>
     );
 }
