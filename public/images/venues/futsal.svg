@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Futsal court">
+  <defs>
+    <linearGradient id="pitch" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1b573e"/>
+      <stop offset="100%" stop-color="#0f3a2a"/>
+    </linearGradient>
+    <linearGradient id="light" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#pitch)"/>
+  <g opacity="0.35" stroke="#ffffff" stroke-width="1">
+    <path d="M0 50h800M0 100h800M0 150h800M0 200h800M0 250h800M0 300h800M0 350h800M0 400h800M0 450h800"/>
+    <path d="M80 0v500M160 0v500M240 0v500M320 0v500M400 0v500M480 0v500M560 0v500M640 0v500M720 0v500"/>
+  </g>
+  <rect x="60" y="55" width="680" height="390" rx="6" fill="none" stroke="#ffffff" stroke-opacity="0.8" stroke-width="4"/>
+  <path d="M400 55v390" stroke="#ffffff" stroke-opacity="0.8" stroke-width="4"/>
+  <circle cx="400" cy="250" r="62" fill="none" stroke="#ffffff" stroke-opacity="0.8" stroke-width="4"/>
+  <circle cx="400" cy="250" r="6" fill="#ffffff" fill-opacity="0.8"/>
+  <rect x="60" y="155" width="90" height="190" fill="none" stroke="#ffffff" stroke-opacity="0.8" stroke-width="4"/>
+  <rect x="650" y="155" width="90" height="190" fill="none" stroke="#ffffff" stroke-opacity="0.8" stroke-width="4"/>
+  <rect x="60" y="205" width="30" height="90" fill="none" stroke="#ffffff" stroke-opacity="0.8" stroke-width="4"/>
+  <rect x="710" y="205" width="30" height="90" fill="none" stroke="#ffffff" stroke-opacity="0.8" stroke-width="4"/>
+  <circle cx="400" cy="250" r="250" fill="url(#light)"/>
+  <circle cx="645" cy="345" r="18" fill="#ffffff" fill-opacity="0.92"/>
+  <circle cx="645" cy="345" r="7" fill="#1b573e"/>
+  <g fill="#ffffff" fill-opacity="0.85" font-family="Verdana, sans-serif" font-size="20" font-weight="bold" letter-spacing="6">
+    <text x="400" y="470" text-anchor="middle">SPORTIFY ARENA</text>
+  </g>
+</svg>

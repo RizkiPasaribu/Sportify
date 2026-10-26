@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Outdoor futsal court at night">
+  <defs>
+    <linearGradient id="night" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0b1720"/>
+      <stop offset="45%" stop-color="#14382f"/>
+      <stop offset="100%" stop-color="#0a231c"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="10%" r="70%">
+      <stop offset="0%" stop-color="#e2fff0" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#e2fff0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#night)"/>
+  <rect width="800" height="500" fill="url(#glow)"/>
+  <g fill="#fef9c3" opacity="0.9">
+    <circle cx="130" cy="40" r="6"/><circle cx="250" cy="40" r="6"/><circle cx="370" cy="40" r="6"/>
+    <circle cx="490" cy="40" r="6"/><circle cx="610" cy="40" r="6"/><circle cx="730" cy="40" r="6"/>
+  </g>
+  <path d="M80 110 720 110 700 440 100 440Z" fill="#12503c" stroke="#8ff0c0" stroke-opacity="0.55" stroke-width="4"/>
+  <path d="M80 110 720 110 700 440 100 440Z" fill="none"/>
+  <path d="M400 110v330" stroke="#8ff0c0" stroke-opacity="0.55" stroke-width="4"/>
+  <ellipse cx="400" cy="275" rx="58" ry="52" fill="none" stroke="#8ff0c0" stroke-opacity="0.55" stroke-width="4"/>
+  <path d="M100 175h95v200h-95" fill="none" stroke="#8ff0c0" stroke-opacity="0.55" stroke-width="4"/>
+  <path d="M700 175h-95v200h95" fill="none" stroke="#8ff0c0" stroke-opacity="0.55" stroke-width="4"/>
+  <g stroke="#d1fae5" stroke-opacity="0.35" stroke-width="2">
+    <path d="M80 150 20 60M720 150 780 60"/>
+  </g>
+  <rect x="0" y="60" width="34" height="12" rx="3" fill="#e2e8f0" opacity="0.8"/>
+  <rect x="766" y="60" width="34" height="12" rx="3" fill="#e2e8f0" opacity="0.8"/>
+  <circle cx="580" cy="365" r="16" fill="#f8fafc"/>
+  <circle cx="580" cy="365" r="6" fill="#12503c"/>
+  <g fill="#d1fae5" fill-opacity="0.9" font-family="Verdana, sans-serif" font-size="18" font-weight="bold" letter-spacing="5">
+    <text x="400" y="485" text-anchor="middle">GARUDA FUTSAL PARK</text>
+  </g>
+</svg>
